@@ -4,33 +4,37 @@ import json
 def main():
     st.title("Credit Score Tier Form")
 
-    tiers = [
-        {"label": "Excellent credit", "minValue": 800},
-        {"label": "Very good credit", "minValue": 740},
-        {"label": "Good credit", "minValue": 670},
-        {"label": "Fair credit", "minValue": 580}
-    ]
+    if "tiers" not in st.session_state:
+        st.session_state.tiers = [
+            {"label": "Excellent credit", "minValue": 800},
+            {"label": "Very good credit", "minValue": 740},
+            {"label": "Good credit", "minValue": 670},
+            {"label": "Fair credit", "minValue": 580}
+        ]
+
+    if "num_rows" not in st.session_state:
+        st.session_state.num_rows = len(st.session_state.tiers)
 
     finance_markup = st.number_input("Finance Markup", value=0.0, format="%.1f")
     lease_markup = st.number_input("Lease Markup", value=0.0, format="%.5f")
 
-    num_rows = len(tiers)
+    num_rows = st.session_state.num_rows
 
     for i in range(num_rows):
         st.subheader(f"Tier {i + 1}")
 
-        tiers[i]["label"] = st.text_input(f"Tier Label", value=tiers[i]["label"], key=f"tier_label_{i}")
-        tiers[i]["minValue"] = st.number_input(f"Minimum Credit Score", value=tiers[i]["minValue"],
+        st.session_state.tiers[i]["label"] = st.text_input(f"Tier Label", value=st.session_state.tiers[i]["label"], key=f"tier_label_{i}")
+        st.session_state.tiers[i]["minValue"] = st.number_input(f"Minimum Credit Score", value=st.session_state.tiers[i]["minValue"],
                                                key=f"min_score_{i}", min_value=300, max_value=850, step=1)
 
-        if "default" not in tiers[i]:
-            tiers[i]["default"] = False
+        if "default" not in st.session_state.tiers[i]:
+            st.session_state.tiers[i]["default"] = False
 
-        if any(tier.get("default", False) for tier in tiers):
-            tiers[i]["default"] = st.checkbox(f"Default Tier", value=tiers[i]["default"], key=f"default_{i}",
+        if any(tier.get("default", False) for tier in st.session_state.tiers):
+            st.session_state.tiers[i]["default"] = st.checkbox(f"Default Tier", value=st.session_state.tiers[i]["default"], key=f"default_{i}",
                                               disabled=True)
         else:
-            tiers[i]["default"] = st.checkbox(f"Default Tier", value=tiers[i]["default"], key=f"default_{i}")
+            st.session_state.tiers[i]["default"] = st.checkbox(f"Default Tier", value=st.session_state.tiers[i]["default"], key=f"default_{i}")
 
         custom_markup = st.checkbox(f"Custom Markup", key=f"custom_markup_{i}")
 
@@ -50,7 +54,7 @@ def main():
             used_finance_value = finance_value
             used_lease_value = lease_value
 
-        tiers[i]["new"] = {
+        st.session_state.tiers[i]["new"] = {
             "finance": {
                 "captive": finance_value,
                 "nonCaptive": finance_value
@@ -60,7 +64,7 @@ def main():
                 "nonCaptive": lease_value
             }
         }
-        tiers[i]["used"] = {
+        st.session_state.tiers[i]["used"] = {
             "finance": {
                 "captive": used_finance_value,
                 "nonCaptive": used_finance_value
@@ -72,19 +76,18 @@ def main():
         }
 
     if st.button("Add Tier"):
-        num_rows += 1
-        tiers.insert(0, {"label": "", "minValue": 0})
+        st.session_state.num_rows += 1
+        st.session_state.tiers.append({"label": "", "minValue": 300})
         st.experimental_rerun()
 
     if st.button("Submit"):
-        default_count = sum(tier.get("default", False) for tier in tiers)
+        default_count = sum(tier.get("default", False) for tier in st.session_state.tiers)
 
         if default_count != 1:
             st.error("Please select exactly one tier as the default.")
         else:
-            json_output = json.dumps(tiers, indent=2)
+            json_output = json.dumps(st.session_state.tiers, indent=2)
             st.session_state.json_output = json_output
-            st.experimental_rerun()
 
     if "json_output" in st.session_state:
         st.subheader("Generated JSON")
