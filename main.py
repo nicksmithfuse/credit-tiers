@@ -4,21 +4,22 @@ import json
 def main():
     st.title("Credit Score Tier")
 
-    if "tiers" not in st.session_state:
-        st.session_state.tiers = [
-            {"label": "Excellent credit", "minValue": 800},
-            {"label": "Very good credit", "minValue": 740},
-            {"label": "Good credit", "minValue": 670},
-            {"label": "Fair credit", "minValue": 580}
-        ]
+    default_tiers = [
+        {"label": "Excellent credit", "minValue": 800},
+        {"label": "Very good credit", "minValue": 740},
+        {"label": "Good credit", "minValue": 670},
+        {"label": "Fair credit", "minValue": 580},
+        {"label": "Poor credit", "minValue": 500},
+        {"label": "Very poor credit", "minValue": 300}
+    ]
 
-    if "num_rows" not in st.session_state:
-        st.session_state.num_rows = len(st.session_state.tiers)
+    if "tiers" not in st.session_state:
+        st.session_state.tiers = default_tiers[:4]  # Initialize with the first 4 tiers
 
     finance_markup = st.number_input("Finance Markup", value=0.0, format="%.1f", step=None)
     lease_markup = st.number_input("Lease Markup", value=0.0, format="%.5f", step=None)
 
-    num_rows = st.session_state.num_rows
+    num_rows = len(st.session_state.tiers)
 
     for i in range(num_rows):
         st.subheader(f"Tier {i + 1}")
@@ -78,14 +79,16 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Add Tier"):
-            st.session_state.num_rows += 1
-            st.session_state.tiers.append({"label": "", "minValue": 300})
+            next_tier_index = len(st.session_state.tiers)
+            if next_tier_index < len(default_tiers):
+                st.session_state.tiers.append(default_tiers[next_tier_index])
+            else:
+                st.session_state.tiers.append({"label": "", "minValue": 300})
             st.experimental_rerun()
 
     with col2:
         if st.button("Remove Tier"):
-            if st.session_state.num_rows > 1:
-                st.session_state.num_rows -= 1
+            if len(st.session_state.tiers) > 1:
                 st.session_state.tiers.pop()
                 st.experimental_rerun()
             else:
