@@ -2,7 +2,7 @@ import streamlit as st
 import json
 
 def main():
-    st.title("Credit Score Tier")
+    st.title("Credit Score Tiers")
 
     default_tiers = [
         {"label": "Excellent credit", "minValue": 800},
@@ -16,13 +16,16 @@ def main():
     if "tiers" not in st.session_state:
         st.session_state.tiers = default_tiers[:4]  # Initialize with the first 4 tiers
 
-    finance_markup = st.number_input("Finance Markup", value=0.0, format="%.1f", step=None)
-    lease_markup = st.number_input("Lease Markup", value=0.0, format="%.5f", step=None)
+    col1, col2 = st.columns(2)
+    with col1:
+        finance_markup = st.number_input("Finance Markup", value=0.0, format="%.1f", step=None)
+    with col2:
+        lease_markup = st.number_input("Lease Markup", value=0.0, format="%.5f", step=None)
 
     num_rows = len(st.session_state.tiers)
 
     for i in range(num_rows):
-        st.subheader(f"Tier {i + 1}")
+        st.markdown(f"<h4>Tier {i + 1}</h4>", unsafe_allow_html=True)
 
         st.session_state.tiers[i]["label"] = st.text_input(f"Tier Label", value=st.session_state.tiers[i]["label"], key=f"tier_label_{i}")
         st.session_state.tiers[i]["minValue"] = st.number_input(f"Minimum Credit Score", value=st.session_state.tiers[i]["minValue"],
