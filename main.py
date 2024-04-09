@@ -1,8 +1,14 @@
 import streamlit as st
 import json
 
+def truncate_decimal(value, num_decimals):
+    try:
+        return float(f"{value:.{num_decimals}f}")
+    except ValueError:
+        return value
+
 def main():
-    st.title("Credit Score Tiers")
+    st.title("Credit Score Tier")
 
     default_tiers = [
         {"label": "Excellent credit", "minValue": 800},
@@ -60,22 +66,22 @@ def main():
 
         st.session_state.tiers[i]["new"] = {
             "finance": {
-                "captive": finance_value,
-                "nonCaptive": finance_value
+                "captive": truncate_decimal(finance_value, 1),
+                "nonCaptive": truncate_decimal(finance_value, 1)
             },
             "lease": {
-                "captive": lease_value,
-                "nonCaptive": lease_value
+                "captive": truncate_decimal(lease_value, 5),
+                "nonCaptive": truncate_decimal(lease_value, 5)
             }
         }
         st.session_state.tiers[i]["used"] = {
             "finance": {
-                "captive": used_finance_value,
-                "nonCaptive": used_finance_value
+                "captive": truncate_decimal(used_finance_value, 1),
+                "nonCaptive": truncate_decimal(used_finance_value, 1)
             },
             "lease": {
-                "captive": used_lease_value,
-                "nonCaptive": used_lease_value
+                "captive": truncate_decimal(used_lease_value, 5),
+                "nonCaptive": truncate_decimal(used_lease_value, 5)
             }
         }
 
