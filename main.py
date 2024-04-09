@@ -75,10 +75,21 @@ def main():
             }
         }
 
-    if st.button("Add Tier"):
-        st.session_state.num_rows += 1
-        st.session_state.tiers.append({"label": "", "minValue": 300})
-        st.experimental_rerun()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Add Tier"):
+            st.session_state.num_rows += 1
+            st.session_state.tiers.append({"label": "", "minValue": 300})
+            st.experimental_rerun()
+
+    with col2:
+        if st.button("Remove Tier"):
+            if st.session_state.num_rows > 1:
+                st.session_state.num_rows -= 1
+                st.session_state.tiers.pop()
+                st.experimental_rerun()
+            else:
+                st.warning("At least one tier is required.")
 
     if st.button("Submit"):
         default_count = sum(tier.get("default", False) for tier in st.session_state.tiers)
